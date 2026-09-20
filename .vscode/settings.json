@@ -2,5 +2,7 @@
     "editor.defaultFormatter": "theqtcompany.qt-qml",
     "[cpp]": {
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
-    }
+    },
+    "qt-qml.qmlls.customExePath": "/usr/bin/qmlls6",
+    "qt-qml.qmlls.useQmlImportPathEnvVar": true,
 }
