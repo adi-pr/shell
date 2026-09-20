@@ -9,13 +9,10 @@ Item {
     id: root
 
     implicitWidth: 700
-    implicitHeight: 500
+    implicitHeight: 400
 
-    property bool port3000: false
-    property bool port8000: false
     property var containers: []
 
-    // Poll development services
     Timer {
         interval: 3000
         running: true
@@ -23,32 +20,10 @@ Item {
         triggeredOnStart: true
 
         onTriggered: {
-            portProcess.running = true
             dockerProcess.running = true
         }
     }
 
-    // Check development ports
-    Process {
-        id: portProcess
-
-        command: [
-            "sh",
-            "-c",
-            "ss -tulpn 2>/dev/null | grep -E ':3000 |:8000 '"
-        ]
-
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const output = text
-
-                root.port3000 = output.includes(":3000")
-                root.port8000 = output.includes(":8000")
-            }
-        }
-    }
-
-    // Get Docker containers
     Process {
         id: dockerProcess
 
@@ -83,132 +58,6 @@ Item {
         anchors.fill: parent
         spacing: Tokens.spacing.medium
 
-        // Header
-        StyledRect {
-            Layout.fillWidth: true
-            implicitHeight: 80
-
-            radius: Tokens.rounding.large
-            color: Colours.palette.m3surfaceContainer
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: Tokens.padding.large
-                spacing: 4
-
-                StyledText {
-                    text: "Developer Dashboard"
-                    font.pixelSize: 22
-                    font.bold: true
-                    color: Colours.palette.m3onSurface
-                }
-
-                StyledText {
-                    text: "Development environment overview"
-                    font.pixelSize: 13
-                    color: Colours.palette.m3onSurfaceVariant
-                }
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: Tokens.spacing.medium
-
-            // Port 3000
-            StyledRect {
-                Layout.fillWidth: true
-                implicitHeight: 100
-
-                radius: Tokens.rounding.large
-                color: root.port3000
-                    ? Colours.palette.m3surfaceContainerHigh
-                    : Colours.palette.m3surfaceContainer
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: Tokens.padding.large
-                    spacing: 8
-
-                    RowLayout {
-                        Layout.fillWidth: true
-
-                        StyledText {
-                            text: "Port 3000"
-                            font.bold: true
-                            font.pixelSize: 15
-                            color: Colours.palette.m3onSurface
-                        }
-
-                        Item {
-                            Layout.fillWidth: true
-                        }
-
-                        StyledText {
-                            text: root.port3000 ? "●" : "●"
-                            color: root.port3000
-                                ? Colours.palette.m3primary
-                                : Colours.palette.m3error
-                            font.pixelSize: 18
-                        }
-                    }
-
-                    StyledText {
-                        text: root.port3000 ? "Running" : "Offline"
-                        color: Colours.palette.m3onSurfaceVariant
-                        font.pixelSize: 12
-                    }
-                }
-            }
-
-            // Port 8000
-            StyledRect {
-                Layout.fillWidth: true
-                implicitHeight: 100
-
-                radius: Tokens.rounding.large
-                color: root.port8000
-                    ? Colours.palette.m3surfaceContainerHigh
-                    : Colours.palette.m3surfaceContainer
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: Tokens.padding.large
-                    spacing: 8
-
-                    RowLayout {
-                        Layout.fillWidth: true
-
-                        StyledText {
-                            text: "Port 8000"
-                            font.bold: true
-                            font.pixelSize: 15
-                            color: Colours.palette.m3onSurface
-                        }
-
-                        Item {
-                            Layout.fillWidth: true
-                        }
-
-                        StyledText {
-                            text: "●"
-                            color: root.port8000
-                                ? Colours.palette.m3primary
-                                : Colours.palette.m3error
-                            font.pixelSize: 18
-                        }
-                    }
-
-                    StyledText {
-                        text: root.port8000 ? "Running" : "Offline"
-                        color: Colours.palette.m3onSurfaceVariant
-                        font.pixelSize: 12
-                    }
-                }
-            }
-        }
-
-        // Docker
         StyledRect {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -221,6 +70,7 @@ Item {
                 anchors.margins: Tokens.padding.large
                 spacing: Tokens.spacing.medium
 
+                // Header + Badge
                 RowLayout {
                     Layout.fillWidth: true
 
@@ -235,64 +85,116 @@ Item {
                         Layout.fillWidth: true
                     }
 
-                    StyledText {
-                        text: `${root.containers.length} running`
-                        color: Colours.palette.m3onSurfaceVariant
-                        font.pixelSize: 12
+                    StyledRect {
+                        implicitHeight: 24
+                        implicitWidth: countText.implicitWidth + 16
+                        radius: Tokens.rounding.full
+                        color: Colours.palette.m3surfaceContainerHigh
+
+                        StyledText {
+                            id: countText
+                            anchors.centerIn: parent
+                            text: `${root.containers.length} active`
+                            color: Colours.palette.m3primary
+                            font.pixelSize: 11
+                            font.bold: true
+                        }
                     }
                 }
 
-                ListView {
+                // Container ListView or Empty State
+                Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    model: root.containers
+                    ListView {
+                        id: containerList
+                        anchors.fill: parent
+                        model: root.containers
+                        clip: true
+                        spacing: 8
+                        visible: root.containers.length > 0
 
-                    clip: true
-                    spacing: 8
+                        delegate: StyledRect {
+                            required property var modelData
 
-                    delegate: StyledRect {
-                        required property var modelData
+                            width: containerList.width
+                            height: 52
 
-                        width: ListView.view.width
-                        height: 56
+                            radius: Tokens.rounding.medium
+                            color: containerMouse.containsMouse 
+                                ? Colours.palette.m3surfaceContainerHighest 
+                                : Colours.palette.m3surfaceContainerHigh
 
-                        radius: Tokens.rounding.medium
-                        color: Colours.palette.m3surfaceContainerHigh
+                            Behavior on color {
+                                ColorAnimation { duration: 150 }
+                            }
 
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: Tokens.padding.medium
-                            spacing: Tokens.spacing.medium
+                            MouseArea {
+                                id: containerMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    // Optional: Handle click event (e.g., open logs or toggle)
+                                }
+                            }
 
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: Tokens.padding.medium
+                                spacing: Tokens.spacing.medium
 
-                                StyledText {
-                                    text: modelData.Names || "Unknown"
-                                    font.bold: true
-                                    color: Colours.palette.m3onSurface
-
-                                    elide: Text.ElideRight
+                                ColumnLayout {
                                     Layout.fillWidth: true
+                                    spacing: 2
+
+                                    StyledText {
+                                        text: modelData.Names || "Unknown"
+                                        font.bold: true
+                                        font.pixelSize: 13
+                                        color: Colours.palette.m3onSurface
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                    }
+
+                                    StyledText {
+                                        text: modelData.Image || ""
+                                        font.pixelSize: 11
+                                        color: Colours.palette.m3onSurfaceVariant
+                                        elide: Text.ElideRight
+                                        Layout.fillWidth: true
+                                    }
                                 }
 
                                 StyledText {
-                                    text: modelData.Image || ""
+                                    text: modelData.Status || "Running"
                                     font.pixelSize: 11
-                                    color: Colours.palette.m3onSurfaceVariant
-
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
+                                    font.bold: true
+                                    color: Colours.palette.m3primary
                                 }
                             }
+                        }
+                    }
 
-                            StyledText {
-                                text: modelData.Status || "Running"
-                                font.pixelSize: 11
-                                color: Colours.palette.m3primary
-                            }
+                    // Fallback when no containers are running
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 8
+                        visible: root.containers.length === 0
+
+                        StyledText {
+                            text: "🐳"
+                            font.pixelSize: 28
+                            Layout.alignment: Qt.AlignHCenter
+                        }
+
+                        StyledText {
+                            text: "No active containers found"
+                            color: Colours.palette.m3onSurfaceVariant
+                            font.pixelSize: 13
+                            font.bold: true
+                            Layout.alignment: Qt.AlignHCenter
                         }
                     }
                 }
