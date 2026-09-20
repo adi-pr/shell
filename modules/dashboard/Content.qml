@@ -9,6 +9,7 @@ import Caelestia.Config
 import Caelestia.I18n
 import qs.components
 import qs.components.filedialog
+import "../devdashboard"
 
 Item {
     id: root
@@ -41,6 +42,12 @@ Item {
                 iconName: "cloud",
                 text: Tr.tr("Weather"),
                 enabled: Config.dashboard.showWeather
+            },
+            {
+                component: devDashboardComponent,
+                iconName: "code",
+                text: "Dev",
+                enabled: true
             }
         ];
         return allTabs.filter(tab => tab.enabled);
@@ -180,6 +187,12 @@ Item {
                 id: weatherComponent
 
                 WeatherTab {}
+            }
+
+            Component {
+                id: devDashboardComponent
+
+                DevDashboardWindow {}
             }
 
             Behavior on contentX {
