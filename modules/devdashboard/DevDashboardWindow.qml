@@ -43,6 +43,17 @@ Item {
                 docker.statFor(
                     modelData.Names
                 )
+
+            busy:
+                docker.isBusy(
+                    modelData.ID
+                )
+
+            onRestartRequested:
+                docker.restart(modelData)
+
+            onLogsRequested:
+                docker.openLogs(modelData)
         }
     }
 

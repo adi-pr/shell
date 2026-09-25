@@ -4,20 +4,27 @@ import QtQuick.Layouts
 import Caelestia.Config
 
 import qs.components
+import qs.components.controls
 import qs.services
 
 import "DockerUtils.js" as DockerUtils
 
 /*
- * Container identity: name, image and state.
+ * Container identity: name, image, state
+ * and actions.
  */
 ColumnLayout {
     id: root
 
     required property var container
+    property bool busy
+
+    signal restartRequested
+    signal logsRequested
 
     readonly property bool running:
         container.State === "running"
+        && !busy
 
     spacing:
         Tokens.spacing.small
@@ -103,18 +110,20 @@ ColumnLayout {
     }
 
     /*
-     * State.
+     * State and actions.
      */
-    Row {
+    RowLayout {
+        Layout.fillWidth: true
+
         spacing:
             Tokens.spacing.small
 
         StyledRect {
-            anchors.verticalCenter:
-                parent.verticalCenter
+            Layout.alignment:
+                Qt.AlignVCenter
 
-            width: 8
-            height: 8
+            implicitWidth: 8
+            implicitHeight: 8
 
             radius: 99
 
@@ -127,9 +136,13 @@ ColumnLayout {
         }
 
         StyledText {
+            Layout.fillWidth: true
+
             text:
-                root.container.State
-                || "unknown"
+                root.busy
+                ? "restarting…"
+                : root.container.State
+                    || "unknown"
 
             font:
                 Tokens.font.body
@@ -146,6 +159,34 @@ ColumnLayout {
                     .m3primary
                 : Colours.palette
                     .m3onSurfaceVariant
+
+            elide:
+                Text.ElideRight
+        }
+
+        IconButton {
+            type:
+                IconButton.Text
+
+            icon:
+                "restart_alt"
+
+            disabled:
+                root.busy
+
+            onClicked:
+                root.restartRequested()
+        }
+
+        IconButton {
+            type:
+                IconButton.Text
+
+            icon:
+                "terminal"
+
+            onClicked:
+                root.logsRequested()
         }
     }
 }

@@ -11,6 +11,10 @@ StyledRect {
 
     required property var container
     property var stats: null
+    property bool busy
+
+    signal restartRequested
+    signal logsRequested
 
     height: 150
 
@@ -44,6 +48,15 @@ StyledRect {
 
             container:
                 root.container
+
+            busy:
+                root.busy
+
+            onRestartRequested:
+                root.restartRequested()
+
+            onLogsRequested:
+                root.logsRequested()
         }
 
         /*

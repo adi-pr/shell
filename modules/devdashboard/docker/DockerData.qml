@@ -1,12 +1,18 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 
+import Quickshell
 import Quickshell.Io
+
+import Caelestia.Config
 
 import "DockerUtils.js" as DockerUtils
 
 /*
  * Polls docker for container metadata
- * and live resource statistics.
+ * and live resource statistics, and runs
+ * actions against containers.
  */
 Item {
     id: root
@@ -16,11 +22,77 @@ Item {
     property var containers: []
     property var statsByName: ({})
 
+    /*
+     * IDs of containers with an action
+     * currently in flight.
+     */
+    property var busyIds: ({})
+
     function statFor(name) {
         if (!name)
             return null
 
         return root.statsByName[name] || null
+    }
+
+    function isBusy(id) {
+        return !!root.busyIds[id]
+    }
+
+    function setBusy(id, busy) {
+        const next =
+            Object.assign({}, root.busyIds)
+
+        if (busy)
+            next[id] = true
+        else
+            delete next[id]
+
+        root.busyIds = next
+    }
+
+    function refresh() {
+        if (!dockerProcess.running)
+            dockerProcess.running = true
+
+        if (!statsProcess.running)
+            statsProcess.running = true
+    }
+
+    function restart(container) {
+        const id = container.ID
+
+        if (!id || root.isBusy(id))
+            return
+
+        root.setBusy(id, true)
+
+        const proc =
+            restartComponent.createObject(root, {
+                containerId: id,
+                containerName: container.Names || id
+            })
+
+        proc.running = true
+    }
+
+    /*
+     * Follows the container's logs in the
+     * user's configured terminal.
+     */
+    function openLogs(container) {
+        if (!container.ID)
+            return
+
+        Quickshell.execDetached([
+            ...GlobalConfig.general.apps.terminal,
+            "docker",
+            "logs",
+            "--follow",
+            "--tail",
+            "200",
+            container.ID
+        ])
     }
 
     /*
@@ -33,12 +105,57 @@ Item {
         repeat: true
         triggeredOnStart: true
 
-        onTriggered: {
-            if (!dockerProcess.running)
-                dockerProcess.running = true
+        onTriggered: root.refresh()
+    }
 
-            if (!statsProcess.running)
-                statsProcess.running = true
+    /*
+     * One-shot restart process, created
+     * per request so several containers
+     * can restart at once.
+     */
+    Component {
+        id: restartComponent
+
+        Process {
+            id: restartProcess
+
+            property string containerId
+            property string containerName
+
+            command: [
+                "docker",
+                "restart",
+                containerId
+            ]
+
+            stderr: StdioCollector {
+                id: restartErrors
+            }
+
+            onExited: exitCode => {
+                root.setBusy(
+                    restartProcess.containerId,
+                    false
+                )
+
+                if (exitCode !== 0) {
+                    Quickshell.execDetached([
+                        "notify-send",
+                        "-a",
+                        "caelestia-shell",
+                        "-u",
+                        "critical",
+                        "Failed to restart "
+                            + restartProcess.containerName,
+                        restartErrors.text.trim()
+                            || "docker exited with code "
+                                + exitCode
+                    ])
+                }
+
+                root.refresh()
+                restartProcess.destroy()
+            }
         }
     }
 
