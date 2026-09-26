@@ -17,10 +17,9 @@ ColumnLayout {
     property bool busy
 
     readonly property bool running: container.State === "running" && !busy
-    
+
     signal restartRequested
     signal logsRequested
-
 
     spacing: Tokens.spacing.small
 

@@ -113,7 +113,7 @@ Item {
                 id: restartErrors
             }
 
-            onExited: exitCode => {
+            onExited: exitCode => { // qmllint disable signal-handler-parameters
                 root.setBusy(restartProcess.containerId, false);
 
                 if (exitCode !== 0) {
