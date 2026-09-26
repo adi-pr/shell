@@ -1,10 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
-
 import Caelestia.Config
-
 import qs.services
-
 import "DockerUtils.js" as DockerUtils
 
 /*

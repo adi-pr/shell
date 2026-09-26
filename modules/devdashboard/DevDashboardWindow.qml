@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import "docker"
 import QtQuick
-
 import Caelestia.Config
 
 Item {

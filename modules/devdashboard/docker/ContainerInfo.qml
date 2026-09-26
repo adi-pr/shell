@@ -1,12 +1,9 @@
 import QtQuick
 import QtQuick.Layouts
-
 import Caelestia.Config
-
 import qs.components
 import qs.components.controls
 import qs.services
-
 import "DockerUtils.js" as DockerUtils
 
 /*
@@ -19,10 +16,11 @@ ColumnLayout {
     required property var container
     property bool busy
 
+    readonly property bool running: container.State === "running" && !busy
+    
     signal restartRequested
     signal logsRequested
 
-    readonly property bool running: container.State === "running" && !busy
 
     spacing: Tokens.spacing.small
 
