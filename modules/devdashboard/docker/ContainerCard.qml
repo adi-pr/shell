@@ -18,45 +18,34 @@ StyledRect {
 
     height: 150
 
-    radius:
-        Tokens.rounding.extraLarge
+    radius: Tokens.rounding.extraLarge
 
-    color:
-        Colours.tPalette.m3surfaceContainer
+    color: Colours.tPalette.m3surfaceContainer
 
     RowLayout {
         anchors.fill: parent
 
-        anchors.leftMargin:
-            Tokens.padding.large
+        anchors.leftMargin: Tokens.padding.large
 
-        anchors.rightMargin:
-            Tokens.padding.large
+        anchors.rightMargin: Tokens.padding.large
 
-        anchors.topMargin:
-            Tokens.padding.medium
+        anchors.topMargin: Tokens.padding.medium
 
-        anchors.bottomMargin:
-            Tokens.padding.medium
+        anchors.bottomMargin: Tokens.padding.medium
 
-        spacing:
-            Tokens.spacing.largeIncreased
+        spacing: Tokens.spacing.largeIncreased
 
         ContainerInfo {
             Layout.preferredWidth: 245
             Layout.fillHeight: true
 
-            container:
-                root.container
+            container: root.container
 
-            busy:
-                root.busy
+            busy: root.busy
 
-            onRestartRequested:
-                root.restartRequested()
+            onRestartRequested: root.restartRequested()
 
-            onLogsRequested:
-                root.logsRequested()
+            onLogsRequested: root.logsRequested()
         }
 
         /*
@@ -67,9 +56,7 @@ StyledRect {
 
             Layout.preferredWidth: 1
 
-            color:
-                Colours.palette
-                    .m3outlineVariant
+            color: Colours.palette.m3outlineVariant
 
             opacity: 0.45
         }
@@ -78,11 +65,9 @@ StyledRect {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            container:
-                root.container
+            container: root.container
 
-            stats:
-                root.stats
+            stats: root.stats
         }
     }
 }

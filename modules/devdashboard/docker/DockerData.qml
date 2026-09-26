@@ -30,50 +30,47 @@ Item {
 
     function statFor(name) {
         if (!name)
-            return null
+            return null;
 
-        return root.statsByName[name] || null
+        return root.statsByName[name] || null;
     }
 
     function isBusy(id) {
-        return !!root.busyIds[id]
+        return !!root.busyIds[id];
     }
 
     function setBusy(id, busy) {
-        const next =
-            Object.assign({}, root.busyIds)
+        const next = Object.assign({}, root.busyIds);
 
         if (busy)
-            next[id] = true
+            next[id] = true;
         else
-            delete next[id]
+            delete next[id];
 
-        root.busyIds = next
+        root.busyIds = next;
     }
 
     function refresh() {
         if (!dockerProcess.running)
-            dockerProcess.running = true
+            dockerProcess.running = true;
 
         if (!statsProcess.running)
-            statsProcess.running = true
+            statsProcess.running = true;
     }
 
     function restart(container) {
-        const id = container.ID
+        const id = container.ID;
 
         if (!id || root.isBusy(id))
-            return
+            return;
+        root.setBusy(id, true);
 
-        root.setBusy(id, true)
+        const proc = restartComponent.createObject(root, {
+            containerId: id,
+            containerName: container.Names || id
+        });
 
-        const proc =
-            restartComponent.createObject(root, {
-                containerId: id,
-                containerName: container.Names || id
-            })
-
-        proc.running = true
+        proc.running = true;
     }
 
     /*
@@ -82,17 +79,8 @@ Item {
      */
     function openLogs(container) {
         if (!container.ID)
-            return
-
-        Quickshell.execDetached([
-            ...GlobalConfig.general.apps.terminal,
-            "docker",
-            "logs",
-            "--follow",
-            "--tail",
-            "200",
-            container.ID
-        ])
+            return;
+        Quickshell.execDetached([...GlobalConfig.general.apps.terminal, "docker", "logs", "--follow", "--tail", "200", container.ID]);
     }
 
     /*
@@ -122,39 +110,21 @@ Item {
             property string containerId
             property string containerName
 
-            command: [
-                "docker",
-                "restart",
-                containerId
-            ]
+            command: ["docker", "restart", containerId]
 
             stderr: StdioCollector {
                 id: restartErrors
             }
 
             onExited: exitCode => {
-                root.setBusy(
-                    restartProcess.containerId,
-                    false
-                )
+                root.setBusy(restartProcess.containerId, false);
 
                 if (exitCode !== 0) {
-                    Quickshell.execDetached([
-                        "notify-send",
-                        "-a",
-                        "caelestia-shell",
-                        "-u",
-                        "critical",
-                        "Failed to restart "
-                            + restartProcess.containerName,
-                        restartErrors.text.trim()
-                            || "docker exited with code "
-                                + exitCode
-                    ])
+                    Quickshell.execDetached(["notify-send", "-a", "caelestia-shell", "-u", "critical", "Failed to restart " + restartProcess.containerName, restartErrors.text.trim() || "docker exited with code " + exitCode]);
                 }
 
-                root.refresh()
-                restartProcess.destroy()
+                root.refresh();
+                restartProcess.destroy();
             }
         }
     }
@@ -165,19 +135,11 @@ Item {
     Process {
         id: dockerProcess
 
-        command: [
-            "sh",
-            "-c",
-            "docker ps --format '{{json .}}' 2>/dev/null"
-        ]
+        command: ["sh", "-c", "docker ps --format '{{json .}}' 2>/dev/null"]
 
         stdout: StdioCollector {
             onStreamFinished: {
-                root.containers =
-                    DockerUtils.parseJsonLines(
-                        text,
-                        "Docker output"
-                    )
+                root.containers = DockerUtils.parseJsonLines(text, "Docker output");
             }
         }
     }
@@ -188,21 +150,13 @@ Item {
     Process {
         id: statsProcess
 
-        command: [
-            "sh",
-            "-c",
-            "docker stats --no-stream --format '{{json .}}' 2>/dev/null"
-        ]
+        command: ["sh", "-c", "docker stats --no-stream --format '{{json .}}' 2>/dev/null"]
 
         stdout: StdioCollector {
             onStreamFinished: {
-                const stats =
-                    DockerUtils.parseJsonLines(
-                        text,
-                        "Docker stats"
-                    )
+                const stats = DockerUtils.parseJsonLines(text, "Docker stats");
 
-                const result = {}
+                const result = {};
 
                 for (const stat of stats) {
                     /*
@@ -212,15 +166,13 @@ Item {
                      * Keep Container as a fallback
                      * just in case.
                      */
-                    const name =
-                        stat.Name
-                        || stat.Container
+                    const name = stat.Name || stat.Container;
 
                     if (name)
-                        result[name] = stat
+                        result[name] = stat;
                 }
 
-                root.statsByName = result
+                root.statsByName = result;
             }
         }
     }

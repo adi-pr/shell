@@ -21,84 +21,55 @@ GridLayout {
 
     columns: 2
 
-    columnSpacing:
-        Tokens.spacing.largeIncreased
+    columnSpacing: Tokens.spacing.largeIncreased
 
-    rowSpacing:
-        Tokens.spacing.large
+    rowSpacing: Tokens.spacing.large
 
     StatItem {
         Layout.fillWidth: true
 
-        icon:
-            "speed"
+        icon: "speed"
 
-        label:
-            "CPU"
+        label: "CPU"
 
-        value:
-            root.stats
-                && root.stats.CPUPerc
-            ? root.stats.CPUPerc
-            : "--"
+        value: root.stats && root.stats.CPUPerc ? root.stats.CPUPerc : "--"
 
-        colour:
-            Colours.palette.m3primary
+        colour: Colours.palette.m3primary
     }
 
     StatItem {
         Layout.fillWidth: true
 
-        icon:
-            "memory"
+        icon: "memory"
 
-        label:
-            "Memory"
+        label: "Memory"
 
-        value:
-            root.stats
-                && root.stats.MemUsage
-            ? DockerUtils.cleanMemory(
-                root.stats.MemUsage
-            )
-            : "--"
+        value: root.stats && root.stats.MemUsage ? DockerUtils.cleanMemory(root.stats.MemUsage) : "--"
 
-        colour:
-            Colours.palette.m3secondary
+        colour: Colours.palette.m3secondary
     }
 
     StatItem {
         Layout.fillWidth: true
 
-        icon:
-            "schedule"
+        icon: "schedule"
 
-        label:
-            "Uptime"
+        label: "Uptime"
 
-        value:
-            root.container.RunningFor
-            || "--"
+        value: root.container.RunningFor || "--"
 
-        colour:
-            Colours.palette.m3tertiary
+        colour: Colours.palette.m3tertiary
     }
 
     StatItem {
         Layout.fillWidth: true
 
-        icon:
-            "lan"
+        icon: "lan"
 
-        label:
-            "Ports"
+        label: "Ports"
 
-        value:
-            DockerUtils.formatPorts(
-                root.container.Ports
-            )
+        value: DockerUtils.formatPorts(root.container.Ports)
 
-        colour:
-            Colours.palette.m3primary
+        colour: Colours.palette.m3primary
     }
 }

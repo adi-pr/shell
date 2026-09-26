@@ -22,46 +22,33 @@ Item {
 
         model: docker.containers
 
-        spacing:
-            Tokens.spacing.medium
+        spacing: Tokens.spacing.medium
 
         clip: true
 
-        visible:
-            docker.containers.length > 0
+        visible: docker.containers.length > 0
 
         delegate: ContainerCard {
             required property var modelData
 
-            width:
-                containerList.width
+            width: containerList.width
 
-            container:
-                modelData
+            container: modelData
 
-            stats:
-                docker.statFor(
-                    modelData.Names
-                )
+            stats: docker.statFor(modelData.Names)
 
-            busy:
-                docker.isBusy(
-                    modelData.ID
-                )
+            busy: docker.isBusy(modelData.ID)
 
-            onRestartRequested:
-                docker.restart(modelData)
+            onRestartRequested: docker.restart(modelData)
 
-            onLogsRequested:
-                docker.openLogs(modelData)
+            onLogsRequested: docker.openLogs(modelData)
         }
     }
 
     Loader {
         anchors.centerIn: parent
 
-        active:
-            docker.containers.length === 0
+        active: docker.containers.length === 0
 
         asynchronous: true
 

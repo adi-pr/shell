@@ -16,62 +16,41 @@ Row {
     property string value
     property color colour
 
-    spacing:
-        Tokens.spacing.medium
+    spacing: Tokens.spacing.medium
 
     MaterialIcon {
-        anchors.verticalCenter:
-            parent.verticalCenter
+        anchors.verticalCenter: parent.verticalCenter
 
-        text:
-            root.icon
+        text: root.icon
 
-        fontStyle:
-            Tokens.font.icon.large
+        fontStyle: Tokens.font.icon.large
 
-        color:
-            root.colour
+        color: root.colour
     }
 
     Column {
-        anchors.verticalCenter:
-            parent.verticalCenter
+        anchors.verticalCenter: parent.verticalCenter
 
         spacing: 0
 
         StyledText {
-            text:
-                root.label
+            text: root.label
 
-            font:
-                Tokens.font.body.small
+            font: Tokens.font.body.small
 
-            color:
-                Colours.palette
-                    .m3onSurfaceVariant
+            color: Colours.palette.m3onSurfaceVariant
         }
 
         StyledText {
             width: 160
 
-            text:
-                root.value
+            text: root.value
 
-            font:
-                Tokens.font.body
-                    .builders
-                    .small
-                    .weight(
-                        Font.DemiBold
-                    )
-                    .build()
+            font: Tokens.font.body.builders.small.weight(Font.DemiBold).build()
 
-            color:
-                Colours.palette
-                    .m3onSurface
+            color: Colours.palette.m3onSurface
 
-            elide:
-                Text.ElideRight
+            elide: Text.ElideRight
         }
     }
 }

@@ -22,35 +22,23 @@ ColumnLayout {
     signal restartRequested
     signal logsRequested
 
-    readonly property bool running:
-        container.State === "running"
-        && !busy
+    readonly property bool running: container.State === "running" && !busy
 
-    spacing:
-        Tokens.spacing.small
+    spacing: Tokens.spacing.small
 
     RowLayout {
         Layout.fillWidth: true
 
-        spacing:
-            Tokens.spacing.medium
+        spacing: Tokens.spacing.medium
 
         MaterialIcon {
-            Layout.alignment:
-                Qt.AlignVCenter
+            Layout.alignment: Qt.AlignVCenter
 
-            text:
-                "deployed_code"
+            text: "deployed_code"
 
-            fontStyle:
-                Tokens.font.icon
-                    .builders
-                    .extraLarge
-                    .scale(1.15)
-                    .build()
+            fontStyle: Tokens.font.icon.builders.extraLarge.scale(1.15).build()
 
-            color:
-                Colours.palette.m3primary
+            color: Colours.palette.m3primary
         }
 
         ColumnLayout {
@@ -61,46 +49,27 @@ ColumnLayout {
             StyledText {
                 Layout.fillWidth: true
 
-                text:
-                    root.container.Names
-                    || "Unknown"
+                text: root.container.Names || "Unknown"
 
-                font:
-                    Tokens.font.body
-                        .builders
-                        .large
-                        .weight(
-                            Font.DemiBold
-                        )
-                        .build()
+                font: Tokens.font.body.builders.large.weight(Font.DemiBold).build()
 
-                color:
-                    Colours.palette
-                        .m3onSurface
+                color: Colours.palette.m3onSurface
 
-                elide:
-                    Text.ElideRight
+                elide: Text.ElideRight
             }
 
             StyledText {
                 Layout.fillWidth: true
 
-                text:
-                    DockerUtils.shortImage(
-                        root.container.Image
-                    )
+                text: DockerUtils.shortImage(root.container.Image)
 
-                font:
-                    Tokens.font.body.small
+                font: Tokens.font.body.small
 
-                color:
-                    Colours.palette
-                        .m3onSurfaceVariant
+                color: Colours.palette.m3onSurfaceVariant
 
                 opacity: 0.75
 
-                elide:
-                    Text.ElideRight
+                elide: Text.ElideRight
             }
         }
     }
@@ -115,78 +84,47 @@ ColumnLayout {
     RowLayout {
         Layout.fillWidth: true
 
-        spacing:
-            Tokens.spacing.small
+        spacing: Tokens.spacing.small
 
         StyledRect {
-            Layout.alignment:
-                Qt.AlignVCenter
+            Layout.alignment: Qt.AlignVCenter
 
             implicitWidth: 8
             implicitHeight: 8
 
             radius: 99
 
-            color:
-                root.running
-                ? Colours.palette
-                    .m3primary
-                : Colours.palette
-                    .m3outline
+            color: root.running ? Colours.palette.m3primary : Colours.palette.m3outline
         }
 
         StyledText {
             Layout.fillWidth: true
 
-            text:
-                root.busy
-                ? "restarting…"
-                : root.container.State
-                    || "unknown"
+            text: root.busy ? "restarting…" : root.container.State || "unknown"
 
-            font:
-                Tokens.font.body
-                    .builders
-                    .small
-                    .weight(
-                        Font.DemiBold
-                    )
-                    .build()
+            font: Tokens.font.body.builders.small.weight(Font.DemiBold).build()
 
-            color:
-                root.running
-                ? Colours.palette
-                    .m3primary
-                : Colours.palette
-                    .m3onSurfaceVariant
+            color: root.running ? Colours.palette.m3primary : Colours.palette.m3onSurfaceVariant
 
-            elide:
-                Text.ElideRight
+            elide: Text.ElideRight
         }
 
         IconButton {
-            type:
-                IconButton.Text
+            type: IconButton.Text
 
-            icon:
-                "restart_alt"
+            icon: "restart_alt"
 
-            disabled:
-                root.busy
+            disabled: root.busy
 
-            onClicked:
-                root.restartRequested()
+            onClicked: root.restartRequested()
         }
 
         IconButton {
-            type:
-                IconButton.Text
+            type: IconButton.Text
 
-            icon:
-                "terminal"
+            icon: "terminal"
 
-            onClicked:
-                root.logsRequested()
+            onClicked: root.logsRequested()
         }
     }
 }
